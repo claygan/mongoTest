@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:util="http://www.springframework.org/schema/util" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+    	http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+    	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+    	http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+    	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+    	
+    	<context:component-scan base-package="com.quest.controllers" use-default-filters="false">
+			<context:include-filter type="annotation" expression="org.springframework.stereotype.Controller" />
+		</context:component-scan>
+		
+		<mvc:annotation-driven/>
+		
+		<!-- 静态资源文件交给servlet处理，不经过DispatcherServlet -->
+		<mvc:default-servlet-handler/>
+		<!-- 指定资源路径 -->
+		<mvc:resources mapping="/**" location="/resources/" />
+		
+		<bean id="contentNegotiationManager" class="org.springframework.web.accept.ContentNegotiationManagerFactoryBean">
+			<property name="favorPathExtension" value="true" />
+			<property name="favorParameter" value="true" />
+			<property name="parameterName" value="format" />
+			<property name="ignoreAcceptHeader" value="false" />
+			<property name="mediaTypes">
+				<value>
+					json=application/json
+					xml=application/xml
+					html=text/html
+				</value>
+			</property>
+			<property name="defaultContentType" value="text/html" />
+		</bean>
+		<!-- ========================= VIEW定义 ========================= -->
+		<!-- 内容协商视图解析器；根据客户端的不同的请求决定不同的 view进行响应, 如 /blog/1.json /blog/1.xml -->
+		<!-- 会自动根据解析的contentType来决定使用哪个视图解析器（默认使用整个web应用中的viewResolver） -->
+		<bean class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
+			<!-- 内容协商管理器 用于决定media type -->
+			<property name="contentNegotiationManager" ref="contentNegotiationManager" />
+			<!-- 默认视图 放在解析链最后 -->
+			<property name="defaultViews">
+				<list>
+					<bean class="com.alibaba.fastjson.support.spring.FastJsonJsonView" />
+				</list>
+			</property>
+		</bean>
+		
+		<!-- 视图解释器 -->
+		<!-- 1.freemarker视图解释器 -->
+    	<bean class="org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver">
+			<property name="cache" value="true" />
+			<property name="prefix" value="" />
+			<property name="suffix" value=".html" />
+			<property name="contentType" value="text/html; charset=UTF-8" />
+			<property name="requestContextAttribute" value="request" />
+			<property name="order" value="1"></property>
+		</bean>
+		<!-- freemarker配置 -->
+		<bean id="freeMarkerConfigurer" class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">
+			<!-- 模板加载路径 -->
+			<property name="templateLoaderPath" value="/WEB-INF/template" />
+			<!-- 参数设置 -->
+			<property name="freemarkerSettings">
+				<props>
+					<prop key="defaultEncoding">UTF-8</prop>
+					<prop key="locale">zh_CN</prop>
+					<prop key="template_update_delay">10</prop>
+					<prop key="number_format">#</prop>
+					<prop key="datetime_format">yyyy-MM-dd HH:mm:ss</prop>
+					<prop key="date_format">yyyy-MM-dd</prop>
+					<prop key="time_format">HH:mm:ss</prop>
+					<prop key="boolean_format">true,false</prop>
+					<prop key="template_exception_handler">com.quest.freemarker.FreemarkerExceptionHandler</prop>
+				</props>
+			</property>
+			<!-- 传递到页面的变量 -->
+			<property name="freemarkerVariables">
+				<map>
+				</map>
+			</property>
+		</bean>
+    	<!-- 2.通用视图解释器 -->
+		<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+			<property name="prefix" value="/WEB-INF/template/" />
+			<property name="suffix" value=".html" />
+			<property name="contentType" value="text/html;charset=UTF-8"/>
+			<property name="viewClass" value="org.springframework.web.servlet.view.InternalResourceView" />
+			<property name="order" value="2"></property>
+		</bean>
+		
+		<mvc:resources mapping="/errors/**" location="/WEB-INF/template/errors/" />
+		<!-- 错误页面配置 -->
+		<bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+<!-- 			定义默认的异常处理页面，当该异常类型的注册时使用  -->
+			<property name="defaultErrorView" value="errors/dataError"></property>
+<!-- 			定义异常处理页面用来获取异常信息的变量名，默认名为exception -->
+			<property name="exceptionAttribute" value="ex"></property>
+<!-- 			定义需要特殊处理的异常，用类名或完全路径名作为key，异常页面名作为值 -->
+			<property name="exceptionMappings">
+				<props>
+					<prop key="java.lang.Exception">errors/dataError</prop>
+					<prop key="java.lang.Throwable">errors/dataError</prop>
+				</props>
+			</property>
+			<property name="statusCodes">
+				<map>
+					<entry key="errors/notFound" value="404" />
+					<entry key="errors/dataError" value="500" />
+				</map>
+			</property>
+		</bean>
+</beans>
