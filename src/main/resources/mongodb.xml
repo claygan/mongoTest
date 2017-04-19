@@ -27,8 +27,15 @@
          <property name="ignoreInvalidClasses" value="false"/>
     </bean>
 
-	<bean id="mongoClientOptions" class="com.mongodb.MongoClientOptions">
+	<!-- ReplicaSet连接参数设置 -->
+	<bean id="mongoClientOptions" class="com.quest.factorybean.MongoClientOptionsFactoryBean">
 		<property name="requiredReplicaSetName" value="${mongo.replicaSetName}"></property>
+		<property name="connectionsPerHost" value="${mongo.connectionsPerHost}"></property>
+		<property name="threadsAllowedToBlockForConnectionMultiplier" value="${mongo.threadsAllowedToBlockForConnectionMultiplier}"></property>
+		<property name="connectTimeout" value="${mongo.connectTimeout}"></property>
+		<property name="socketTimeout" value="${mongo.socketTimeout}"></property>
+		<property name="maxWaitTime" value="${mongo.maxWaitTime}"></property>
+		<property name="socketKeepAlive" value="${mongo.socketKeepAlive}"></property>
 	</bean>
 	
     <bean id="mongoClient" class="com.quest.factorybean.MongoFactoryBean">
@@ -40,8 +47,12 @@
             </array>
         </property>
         <!-- 是否读写分离 -->
-        <property name="readSecondary" value="false"/>
-        <property name="mongoClientOptions" ref="mongoClientOptions"></property>
+        <property name="readSecondary" value="true"/>
+        <property name="mongoClientOptions" ref="mongoClientOptions"/>
+        <!-- 用户密码(认证设置) -->
+        <property name="dbName" value="${mongo.dbname}"/>
+        <property name="username" value="${mongo.username}"/>
+        <property name="password" value="${mongo.password}"/>
     </bean>
     
     <!-- 使用工厂创建datastore，同时完成index和caps的确认操作 -->

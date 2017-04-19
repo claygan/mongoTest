@@ -22,6 +22,6 @@
 	
 	<bean id="serviceFactory" class="com.quest.commons.ServiceFactory"/>
 	
-	<bean id="studentDao" class="com.quest.dao.StudentDao"/>
+	<bean id="studentDao" class="com.quest.service.dao.StudentDao"/>
 	<import resource="mongodb.xml"/>
 </beans>

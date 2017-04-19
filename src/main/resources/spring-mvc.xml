@@ -79,6 +79,7 @@
 			<!-- 传递到页面的变量 -->
 			<property name="freemarkerVariables">
 				<map>
+					<entry key="resUrl" value="${resource.url}" />
 				</map>
 			</property>
 		</bean>

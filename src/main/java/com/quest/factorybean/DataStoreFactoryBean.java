@@ -1,28 +1,32 @@
 package com.quest.factorybean;
 
-import com.mongodb.MongoClient;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.Morphia;
 import org.springframework.beans.factory.config.AbstractFactoryBean;
 
-/**
- * @author Gabriel
- */
+import com.mongodb.MongoClient;
+
+/** 
+ * @ClassName: DataStoreFactoryBean
+ * @Description:  数据源工厂
+ * 
+ * @author ganshimin@zhongzhihui.com
+ * @date: 2017年4月19日 下午2:59:04
+ */  
 public class DataStoreFactoryBean extends AbstractFactoryBean<Datastore> {
 
     private Morphia morphia;    //morphia实例，最好是单例
     private MongoClient mongoClient;    //mongo实例，最好是单例
     private String dbName;    //数据库名
-    private String username;    //用户名，可为空
-    private String password;    //密码，可为空
     private boolean toEnsureIndexes = false;    //是否确认索引存在，默认false
     private boolean toEnsureCaps = false;    //是否确认caps存在，默认false
 
 
-    @Override
+	@Override
     protected Datastore createInstance() throws Exception {
         //这里的username和password可以为null，morphia对象会去处理
         Datastore ds = morphia.createDatastore(mongoClient, dbName);
+        
         if (toEnsureIndexes) {
             ds.ensureIndexes();
         }
@@ -80,22 +84,6 @@ public class DataStoreFactoryBean extends AbstractFactoryBean<Datastore> {
 
     public void setDbName(String dbName) {
         this.dbName = dbName;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     public boolean isToEnsureIndexes() {
